@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>QR Catalog</h1>
+<p class="sub">
+  Every JBS QR code, Digital Link or not. Categories follow the intern project
+  brief: <strong>I</strong> brand &amp; corporate, <strong>II</strong> existing
+  retail-ready, <strong>III</strong> retail-ready codes that should exist but
+  do not.
+</p>
+
+<form class="inline" method="get">
+  <select name="category">
+    <option value="">All categories</option>
+    {% for key, label in categories.items() %}
+    <option value="{{ key }}" {% if category == key %}selected{% endif %}>{{ key }} &mdash; {{ label }}</option>
+    {% endfor %}
+  </select>
+  <input type="text" name="q" value="{{ q }}" placeholder="Label, GTIN, brand or owner">
+  <button class="btn secondary" type="submit">Filter</button>
+  <a class="btn" href="/admin/catalog/new">+ New code</a>
+</form>
+
+<div class="panel">
+{% if entries %}
+<table>
+  <thead>
+    <tr>
+      <th>Cat</th><th>Label</th><th>Brand</th><th>GTIN</th>
+      <th>Where in the world</th>
+      <th>Colour</th><th>Type</th><th>Owner</th><th>PDP?</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in entries %}
+    <tr>
+      <td><span class="pill cat">{{ e.category }}</span></td>
+      <td>{{ e.label }}</td>
+      <td>{{ e.brand or "" }}</td>
+      <td class="mono">{{ e.gtin14 or "" }}</td>
+      <td>{{ e.world_location or "—" }}</td>
+      <td>
+        <span class="swatch-chip" style="background: {{ e.qr_dark }}"></span>
+        <span class="swatch-chip" style="background: {{ e.qr_light }}"></span>
+      </td>
+      <td><span class="pill">{{ "dynamic" if e.is_dynamic else "static" }}</span></td>
+      <td>{{ e.owner or "—" }}</td>
+      <td>{% if e.needs_pdp %}<span class="pill draft">needs PDP</span>{% endif %}</td>
+      <td><a href="/admin/catalog/{{ e.id }}">Open</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">Nothing logged yet. <a href="/admin/catalog/new">Add the first code</a>.</div>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>New QR code</h1>
+<p class="sub">
+  GTIN first, as with any GS1 code. A Digital Link code resolves through
+  <code class="mono">{{ scheme }}://{{ domain }}/01/&lt;GTIN&gt;</code>; a plain
+  code points wherever you tell it.
+</p>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<form method="post">
+  <div class="panel">
+    <div class="grid2">
+      <div class="field">
+        <label for="code_kind">Code type</label>
+        <select id="code_kind" name="code_kind">
+          <option value="digital_link">GS1 Digital Link (product / GTIN)</option>
+          <option value="plain_url">Plain URL (sell sheet, POS, campaign)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          {% for key, label in categories.items() %}
+          <option value="{{ key }}">{{ key }} &mdash; {{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="label">Label <span class="hint">what this code is, in plain words</span></label>
+      <input type="text" id="label" name="label" required
+             placeholder="1855 Ribeye retail pack, back panel">
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="gtin">GTIN <span class="hint">Digital Link codes only</span></label>
+        <input type="text" id="gtin" name="gtin" value="{{ gtin }}"
+               placeholder="90076338468464">
+        <div class="hint">Check digit is validated; 8/12/13/14 digits accepted.</div>
+      </div>
+      <div class="field">
+        <label for="target_url">Target URL <span class="hint">plain codes only</span></label>
+        <input type="url" id="target_url" name="target_url" placeholder="https://...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="brand">Brand</label>
+      <input type="text" id="brand" name="brand">
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Code colour</h2>
+    <p class="hint" style="margin-top:-4px">
+      Any hex pair is accepted. Contrast is checked and flagged after
+      generation &mdash; scanners need dark modules on a light background, and a
+      low-contrast code can look fine on screen but fail at the shelf.
+    </p>
+    <div class="grid2">
+      <div class="field">
+        <label for="qr_dark">Modules (the dark squares)</label>
+        <div class="color-field">
+          <input type="color" class="swatch" value="#000000"
+                 oninput="this.nextElementSibling.value = this.value"
+                 aria-label="Pick module colour">
+          <input type="text" id="qr_dark" name="qr_dark" value="#000000"
+                 oninput="this.previousElementSibling.value = this.value">
+        </div>
+      </div>
+      <div class="field">
+        <label for="qr_light">Background</label>
+        <div class="color-field">
+          <input type="color" class="swatch" value="#ffffff"
+                 oninput="this.nextElementSibling.value = this.value"
+                 aria-label="Pick code background colour">
+          <input type="text" id="qr_light" name="qr_light" value="#ffffff"
+                 oninput="this.previousElementSibling.value = this.value">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Catalog record</h2>
+    <p class="hint" style="margin-top:-4px">
+      These are the fields that make an entry worth having, from the project brief.
+    </p>
+    <div class="field">
+      <label for="world_location">Where the code exists in the world</label>
+      <input type="text" id="world_location" name="world_location"
+             placeholder="Case label, sell sheet p2, shelf talker">
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="owner">Owner</label>
+        <input type="text" id="owner" name="owner">
+      </div>
+      <div class="field">
+        <label for="owner_contact">Who to contact for changes</label>
+        <input type="text" id="owner_contact" name="owner_contact">
+      </div>
+    </div>
+    <label class="chk"><input type="checkbox" name="is_dynamic" checked> Dynamic (destination can change without a reprint)</label>
+    <label class="chk"><input type="checkbox" name="needs_pdp"> Needs its own product page built</label>
+    <div class="field" style="margin-top:14px">
+      <label for="notes">Notes</label>
+      <textarea id="notes" name="notes"></textarea>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" type="submit">Generate &amp; log</button>
+    <a class="btn secondary" href="/admin/catalog">Cancel</a>
+  </div>
+</form>
+{% endblock %}

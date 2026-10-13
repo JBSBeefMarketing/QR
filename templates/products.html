@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Products</h1>
+<p class="sub">Ingested from the Syndigo GDSN exports. {{ products|length }} shown.</p>
+
+<form class="inline" method="get">
+  <input type="text" name="q" value="{{ q }}" placeholder="GTIN, SKU, brand or description">
+  <button class="btn secondary" type="submit">Search</button>
+</form>
+
+<div class="panel">
+{% if products %}
+<table>
+  <thead>
+    <tr>
+      <th>GTIN</th><th>SKU</th><th>Brand</th><th>Description</th>
+      <th>Level</th><th>Page</th><th class="num">Codes</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in products %}
+    <tr>
+      <td class="mono">{{ p.gtin14 }}</td>
+      <td class="mono">{{ p.jbs_sku or "" }}</td>
+      <td>{{ p.brand or "" }}</td>
+      <td>{{ (p.short_description or p.trade_item_desc or "")[:70] }}</td>
+      <td><span class="pill">{{ p.unit_descriptor or "?" }}</span></td>
+      <td>
+        {% if p.page_status == "published" %}<span class="pill ok">published</span>
+        {% elif p.page_status %}<span class="pill draft">draft</span>
+        {% else %}<span class="pill">none</span>{% endif %}
+      </td>
+      <td class="num">{{ p.code_count }}</td>
+      <td>
+        <a href="/admin/page/{{ p.gtin14 }}">Edit page</a>
+        {% if p.page_status %} &middot; <a href="/p/{{ p.gtin14 }}">View</a>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  No products. Run <code class="mono">python -m app.ingest</code> to load the
+  GDSN exports.
+</div>
+{% endif %}
+</div>
+{% endblock %}

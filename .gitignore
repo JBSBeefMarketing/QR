@@ -1,0 +1,13 @@
+# The database and generated code images. These live on the host's disk, not
+# in the repository - committing them would mean the live catalog gets
+# overwritten by whatever happened to be on someone's laptop at deploy time.
+data/
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.log
+
+# Never commit secrets. The admin password is set in the host's dashboard.
+.env

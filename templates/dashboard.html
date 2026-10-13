@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Overview</h1>
+<p class="sub">
+  Resolving on <code class="mono">{{ scheme }}://{{ domain }}</code>
+  &mdash; <a href="/.well-known/gs1resolver">resolver description</a>
+</p>
+
+<div class="tiles">
+  <div class="tile"><div class="n">{{ counts.products }}</div><div class="l">Products ingested</div></div>
+  <div class="tile"><div class="n">{{ counts.pages }}</div><div class="l">Pages authored</div></div>
+  <div class="tile"><div class="n">{{ counts.published }}</div><div class="l">Published</div></div>
+  <div class="tile"><div class="n">{{ counts.codes }}</div><div class="l">Codes in catalog</div></div>
+  <div class="tile"><div class="n">{{ counts.links }}</div><div class="l">Resolver links</div></div>
+</div>
+
+<h2>Catalog by category</h2>
+<div class="panel">
+  {% if by_cat %}
+  <table>
+    <thead><tr><th>Category</th><th></th><th class="num">Codes</th></tr></thead>
+    <tbody>
+      {% for row in by_cat %}
+      <tr>
+        <td><span class="pill cat">{{ row.category }}</span></td>
+        <td>{{ categories.get(row.category, "") }}</td>
+        <td class="num">{{ row.c }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    No codes logged yet. <a href="/admin/catalog/new">Add the first one</a>, or
+    start from a <a href="/admin/products">product</a>.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

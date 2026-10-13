@@ -1,0 +1,45 @@
+# Render deployment.
+#
+# Render reads this file when you connect the repository, so most of the setup
+# that would otherwise be click-by-click is already filled in here.
+#
+# The two secret values - the admin password, and confirming the live domain -
+# are deliberately NOT in this file. They are set in the Render dashboard so
+# they never end up in the repository.
+
+services:
+  - type: web
+    name: jbs-digital-link
+    runtime: python
+    plan: starter                 # paid tier; the free tier sleeps when idle
+    region: ohio
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+    # The database and generated code images live here. Without a disk, both
+    # are wiped on every deploy and every restart.
+    disk:
+      name: jbs-dl-data
+      mountPath: /var/data
+      sizeGB: 1
+
+    healthCheckPath: /healthz
+
+    envVars:
+      - key: JBS_DL_DATA_DIR
+        value: /var/data
+
+      - key: PYTHON_VERSION
+        value: "3.12"
+
+      # Set in the dashboard, not here.
+      - key: JBS_DL_ADMIN_PASSWORD
+        sync: false
+
+      # Leave these UNSET until jbs-qr.com actually serves this app. Until
+      # then the admin UI keeps warning that generated codes are provisional,
+      # which is exactly what you want.
+      - key: JBS_DL_DOMAIN
+        sync: false
+      - key: JBS_DL_SCHEME
+        sync: false

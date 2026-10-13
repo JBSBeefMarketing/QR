@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{{ entry.label }}{% endblock %}
+{% block content %}
+<h1>{{ entry.label }}</h1>
+<p class="sub">
+  <span class="pill cat">Category {{ entry.category }}</span>
+  {{ categories.get(entry.category, "") }}
+  {% if entry.gtin14 %} &middot; <span class="mono">{{ entry.gtin14 }}</span>{% endif %}
+</p>
+
+{% if contrast_warning %}
+<div class="warn-banner">
+  <strong>Contrast warning.</strong> {{ contrast_warning }}
+  <div class="hint" style="margin-top:6px">
+    The code has still been generated and logged &mdash; this is advice, not a block.
+  </div>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="qr-proof">
+    <img src="/media/{{ entry.qr_png }}" alt="QR code for {{ entry.label }}">
+    <div style="flex:1">
+      <h2 style="margin-top:0">Encoded URL</h2>
+      <code class="url">{{ entry.target_url }}</code>
+      <p class="hint">
+        Downloads: <a href="/media/{{ entry.qr_svg }}">SVG</a> (use this for print)
+        &middot; <a href="/media/{{ entry.qr_png }}">PNG</a> (proofing only)
+      </p>
+      {% if entry.gtin14 %}
+      <p class="hint">
+        Resolver check:
+        <a href="/01/{{ entry.gtin14 }}">/01/{{ entry.gtin14 }}</a> &middot;
+        <a href="/01/{{ entry.gtin14 }}?linkType=gs1:all">linkset</a>
+      </p>
+      {% endif %}
+
+      <p class="hint">
+        Colour:
+        <span class="swatch-chip" style="background: {{ entry.qr_dark }}"></span>
+        <span class="mono">{{ entry.qr_dark }}</span> on
+        <span class="swatch-chip" style="background: {{ entry.qr_light }}"></span>
+        <span class="mono">{{ entry.qr_light }}</span>
+        &middot; contrast {{ "%.1f"|format(contrast_ratio) }}:1
+      </p>
+    </div>
+  </div>
+</div>
+
+{% if entry.gtin14 %}
+<div class="panel">
+  <h2 style="margin-top:0">Product actions</h2>
+  {# The title sits on the wrapper, not the button: browsers suppress hover
+     events on a disabled control, so a title there would never show. #}
+  <div class="actions" style="margin-top:0">
+    <span class="tip" title="Not Yet Configured">
+      <button class="btn secondary" type="button" disabled>View in Syndigo</button>
+    </span>
+    <span class="tip" title="Not Yet Configured">
+      <button class="btn secondary" type="button" disabled>Download Product Spec</button>
+    </span>
+  </div>
+  <p class="hint" style="margin-top:12px">
+    Placeholders. Wiring these up needs Syndigo API access and a decision on
+    where spec sheets are served from.
+  </p>
+</div>
+{% endif %}
+
+<div class="panel">
+  <h2 style="margin-top:0">Record</h2>
+  <table>
+    <tbody>
+      <tr><th style="width:220px">Brand</th><td>{{ entry.brand or "—" }}</td></tr>
+      <tr><th>Where it exists in the world</th><td>{{ entry.world_location or "—" }}</td></tr>
+      <tr><th>Static or dynamic</th><td>{{ "Dynamic" if entry.is_dynamic else "Static" }}</td></tr>
+      <tr><th>Owner</th><td>{{ entry.owner or "—" }}</td></tr>
+      <tr><th>Contact for changes</th><td>{{ entry.owner_contact or "—" }}</td></tr>
+      <tr><th>Needs its own PDP</th><td>{{ "Yes" if entry.needs_pdp else "No" }}</td></tr>
+      <tr><th>Logged</th><td>{{ entry.created_at }}</td></tr>
+      <tr><th>Notes</th><td>{{ entry.notes or "—" }}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="actions">
+  <a class="btn secondary" href="/admin/catalog">Back to catalog</a>
+</div>
+{% endblock %}

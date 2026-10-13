@@ -1,0 +1,164 @@
+/* Consumer product page.
+   Mobile first and deliberately plain: this is read on a phone, one-handed,
+   in a store, often on bad signal. */
+
+/* Defaults only. The page template overrides these from the authored theme,
+   which is why nothing below hardcodes a colour. */
+:root {
+  --ink: #1a1c20;
+  --muted: rgba(0,0,0,.55);
+  --line: rgba(0,0,0,.10);
+  --panel: rgba(0,0,0,.03);
+  --accent: #9c2a2a;
+  --bg: #ffffff;
+  --tabbar: 62px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding-bottom: calc(var(--tabbar) + env(safe-area-inset-bottom, 0px));
+  font: 16px/1.6 "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+.draft-flag {
+  background: #8a6100;
+  color: #fff;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px;
+}
+
+.hero {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.hero .shot {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--panel);
+  flex: none;
+}
+.hero .brand {
+  font-size: 12px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+.hero h1 {
+  font-size: 20px;
+  line-height: 1.25;
+  margin: 3px 0 6px;
+  letter-spacing: -0.01em;
+}
+.hero .meta {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+main { padding: 4px 18px 28px; }
+
+h2 {
+  font-size: 15px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 24px 0 10px;
+}
+h3 { font-size: 14px; margin: 0 0 6px; }
+
+.serving {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  padding: 12px 0;
+  border-bottom: 2px solid var(--ink);
+}
+.serving span { display: block; font-size: 12.5px; color: var(--muted); }
+.serving strong { font-size: 16px; }
+
+table.nutrition { width: 100%; border-collapse: collapse; }
+table.nutrition th {
+  text-align: left;
+  font-size: 12px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 10px 0 8px;
+  border-bottom: 1px solid var(--line);
+}
+table.nutrition td {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+table.nutrition .num { text-align: right; width: 26%; }
+table.nutrition tr.indent td:first-child { padding-left: 18px; color: var(--muted); }
+table.nutrition tr.bold td { font-weight: 700; }
+
+.statement { font-size: 16px; margin: 14px 0; }
+.footnote { font-size: 13px; color: var(--muted); margin-top: 14px; }
+
+/* Allergen blocks are tinted with the page's own surface colour and carry
+   their meaning in a coloured edge, so they stay legible whatever background
+   someone picks. */
+.allergen-group {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+}
+.allergen-group ul { margin: 0; padding-left: 20px; }
+.allergen-group.contains { border-left-color: #d0342c; }
+.allergen-group.contains h3 { color: #d0342c; }
+.allergen-group.may { border-left-color: #c08a1e; }
+.allergen-group.may h3 { color: #c08a1e; }
+.allergen-group.free { border-left-color: #2a9461; }
+.allergen-group.free h3 { color: #2a9461; }
+
+ul.links { list-style: none; padding: 0; margin: 8px 0; }
+ul.links li { border-bottom: 1px solid var(--line); }
+ul.links a { display: block; padding: 12px 0; color: var(--accent); text-decoration: none; font-weight: 600; }
+
+.tabbar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.tabbar a {
+  flex: 1;
+  text-align: center;
+  padding: 12px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  border-top: 2px solid transparent;
+  min-height: 44px;                 /* touch target */
+}
+.tabbar a.on { color: var(--accent); border-top-color: var(--accent); }
+
+@media (min-width: 640px) {
+  body { max-width: 560px; margin: 0 auto; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .tabbar { max-width: 560px; margin: 0 auto; }
+}

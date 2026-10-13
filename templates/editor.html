@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}Edit page &middot; {{ gtin14 }}{% endblock %}
+{% block content %}
+
+<h1>{{ content.header.name or product.trade_item_desc or gtin14 }}</h1>
+<p class="sub">
+  <span class="mono">{{ gtin14 }}</span> &middot; {{ product.brand }} &middot;
+  {% if status == "published" %}<span class="pill ok">published</span>
+  {% else %}<span class="pill draft">draft</span>{% endif %}
+  &middot; <a href="/p/{{ gtin14 }}">Preview</a>
+</p>
+
+{% if request.query_params.get("saved") %}
+<div class="saved">Saved.</div>
+{% endif %}
+
+<form method="post">
+
+  <div class="panel">
+    <h2 style="margin-top:0">Appearance</h2>
+    <p class="hint" style="margin-top:-4px">
+      Any hex colour. Text and rule colours are derived automatically so the
+      page stays readable on a dark background.
+    </p>
+    <div class="grid2">
+      <div class="field">
+        <label for="theme_background">Page background</label>
+        <div class="color-field">
+          <input type="color" class="swatch" value="{{ content.theme.background }}"
+                 oninput="this.nextElementSibling.value = this.value"
+                 aria-label="Pick page background colour">
+          <input type="text" id="theme_background" name="theme_background"
+                 value="{{ content.theme.background }}" placeholder="#ffffff"
+                 oninput="this.previousElementSibling.value = this.value">
+        </div>
+      </div>
+      <div class="field">
+        <label for="theme_accent">Accent</label>
+        <div class="color-field">
+          <input type="color" class="swatch" value="{{ content.theme.accent }}"
+                 oninput="this.nextElementSibling.value = this.value"
+                 aria-label="Pick accent colour">
+          <input type="text" id="theme_accent" name="theme_accent"
+                 value="{{ content.theme.accent }}" placeholder="#9c2a2a"
+                 oninput="this.previousElementSibling.value = this.value">
+        </div>
+        <div class="hint">Brand line, links, and the active tab.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Header</h2>
+    <div class="grid2">
+      <div class="field">
+        <label for="name">Product name</label>
+        <input type="text" id="name" name="name" value="{{ content.header.name }}">
+      </div>
+      <div class="field">
+        <label for="brand">Brand</label>
+        <input type="text" id="brand" name="brand" value="{{ content.header.brand }}">
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="net_weight">Net weight</label>
+        <input type="text" id="net_weight" name="net_weight" value="{{ content.header.net_weight }}">
+      </div>
+      <div class="field">
+        <label for="image_url">Product image URL</label>
+        <input type="url" id="image_url" name="image_url" value="{{ content.header.image_url }}"
+               placeholder="https://...">
+        <div class="hint">
+          GDSN supplies a filename only{% if product.image_ref %}
+          (<span class="mono">{{ product.image_ref }}</span>){% endif %} &mdash;
+          paste the URL where the asset is actually served.
+        </div>
+      </div>
+    </div>
+    <label class="chk">
+      <input type="checkbox" name="show_gtin" {% if content.header.show_gtin %}checked{% endif %}>
+      Show GTIN on the page
+    </label>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Nutrition</h2>
+    <p class="hint" style="margin-top:-4px">
+      Not present in the GDSN export for any item, so this has to be authored.
+      Values are rounded to the precision the unit is reported in.
+    </p>
+    <div class="grid2">
+      <div class="field">
+        <label for="serving_size">Serving size</label>
+        <input type="text" id="serving_size" name="serving_size"
+               value="{{ content.nutrition.serving_size }}" placeholder="4 oz (112g)">
+      </div>
+      <div class="field">
+        <label for="servings_per_container">Servings per container</label>
+        <input type="text" id="servings_per_container" name="servings_per_container"
+               value="{{ content.nutrition.servings_per_container }}">
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="per_serving_label">Left column label</label>
+        <input type="text" id="per_serving_label" name="per_serving_label"
+               value="{{ content.nutrition.per_serving_label }}">
+      </div>
+      <div class="field">
+        <label for="per_reference_label">Right column label</label>
+        <input type="text" id="per_reference_label" name="per_reference_label"
+               value="{{ content.nutrition.per_reference_label }}">
+      </div>
+    </div>
+
+    <table class="nutrition-editor">
+      <thead>
+        <tr>
+          <th style="width:34%">Nutrient</th>
+          <th style="width:16%">Per serving</th>
+          <th style="width:16%">Per reference</th>
+          <th style="width:12%">Unit</th>
+          <th style="width:22%">Style</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in content.nutrition.rows %}
+        <tr>
+          <td><input type="text" name="row_label_{{ loop.index0 }}" value="{{ row.label }}"></td>
+          <td><input type="text" name="row_serving_{{ loop.index0 }}" value="{{ row.per_serving }}"></td>
+          <td><input type="text" name="row_reference_{{ loop.index0 }}" value="{{ row.per_reference }}"></td>
+          <td><input type="text" name="row_unit_{{ loop.index0 }}" value="{{ row.unit }}"></td>
+          <td>
+            <label class="chk">
+              <input type="checkbox" name="row_indent_{{ loop.index0 }}" {% if row.indent %}checked{% endif %}> indent
+              <input type="checkbox" name="row_bold_{{ loop.index0 }}" {% if row.bold %}checked{% endif %}> bold
+            </label>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="field" style="margin-top:14px">
+      <label for="footnote">Footnote</label>
+      <input type="text" id="footnote" name="footnote" value="{{ content.nutrition.footnote }}">
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Ingredients</h2>
+    <div class="field">
+      <label for="statement">Ingredient statement</label>
+      <textarea id="statement" name="statement">{{ content.ingredients.statement }}</textarea>
+    </div>
+    <div class="field">
+      <label for="ingredients_note">Note</label>
+      <input type="text" id="ingredients_note" name="ingredients_note"
+             value="{{ content.ingredients.note }}">
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Allergens</h2>
+    <p class="hint" style="margin-top:-4px">Comma separated.</p>
+    <div class="grid3">
+      <div class="field">
+        <label for="contains">Contains</label>
+        <input type="text" id="contains" name="contains"
+               value="{{ content.allergens.contains|join(', ') }}">
+      </div>
+      <div class="field">
+        <label for="may_contain">May contain</label>
+        <input type="text" id="may_contain" name="may_contain"
+               value="{{ content.allergens.may_contain|join(', ') }}">
+      </div>
+      <div class="field">
+        <label for="free_from">Free from</label>
+        <input type="text" id="free_from" name="free_from"
+               value="{{ content.allergens.free_from|join(', ') }}">
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Home</h2>
+    <div class="field">
+      <label for="marketing">Marketing message</label>
+      <textarea id="marketing" name="marketing">{{ content.home.marketing }}</textarea>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="storage">Storage</label>
+        <textarea id="storage" name="storage">{{ content.home.storage }}</textarea>
+      </div>
+      <div class="field">
+        <label for="prep">Preparation</label>
+        <textarea id="prep" name="prep">{{ content.home.prep }}</textarea>
+      </div>
+    </div>
+    <div class="field">
+      <label for="origin">Country of origin</label>
+      <input type="text" id="origin" name="origin" value="{{ content.home.origin }}">
+    </div>
+
+    <h2>Additional links</h2>
+    {% for link in content.home.links %}
+    <div class="grid2">
+      <div class="field">
+        <label for="link_label_{{ loop.index0 }}">Label</label>
+        <input type="text" id="link_label_{{ loop.index0 }}"
+               name="link_label_{{ loop.index0 }}" value="{{ link.label }}">
+      </div>
+      <div class="field">
+        <label for="link_url_{{ loop.index0 }}">URL</label>
+        <input type="url" id="link_url_{{ loop.index0 }}"
+               name="link_url_{{ loop.index0 }}" value="{{ link.url }}">
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="actions">
+    <button class="btn secondary" type="submit" name="action" value="draft">Save draft</button>
+    <button class="btn" type="submit" name="action" value="publish">Publish</button>
+    <span class="hint">Publishing makes this the default resolution target for the GTIN.</span>
+  </div>
+</form>
+{% endblock %}

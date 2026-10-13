@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{{ content.header.name or product.trade_item_desc }}</title>
+  <link rel="stylesheet" href="/static/passport.css">
+  {# The canonical Digital Link URI for this product, for anything crawling it. #}
+  <link rel="owl:sameAs" href="/01/{{ gtin14 }}">
+  <meta name="theme-color" content="{{ theme.background }}">
+  <style>
+    :root {
+      --bg: {{ theme.background }};
+      --ink: {{ theme.text }};
+      --accent: {{ theme.accent }};
+      --line: {{ theme.line }};
+      --muted: {{ theme.muted }};
+      --panel: {{ theme.panel }};
+    }
+  </style>
+</head>
+<body>
+
+{% if is_draft %}
+<div class="draft-flag">Draft &mdash; not published</div>
+{% endif %}
+
+<header class="hero">
+  {% if content.header.image_url %}
+  <img class="shot" src="{{ content.header.image_url }}" alt="{{ content.header.name }}">
+  {% endif %}
+  <div class="hero-text">
+    {% if content.header.brand %}<div class="brand">{{ content.header.brand }}</div>{% endif %}
+    <h1>{{ content.header.name or product.trade_item_desc }}</h1>
+    <div class="meta">
+      {% if content.header.net_weight %}<span>Net weight {{ content.header.net_weight }}</span>{% endif %}
+      {% if content.header.show_gtin %}<span>GTIN {{ gtin14 }}</span>{% endif %}
+    </div>
+  </div>
+</header>
+
+<main>
+{% if active == "nutrition" %}
+  <section>
+    <h2>Nutrition Information</h2>
+    {% if content.nutrition.serving_size or content.nutrition.servings_per_container %}
+    <div class="serving">
+      {% if content.nutrition.serving_size %}
+      <div><span>Serving size</span><strong>{{ content.nutrition.serving_size }}</strong></div>
+      {% endif %}
+      {% if content.nutrition.servings_per_container %}
+      <div><span>Servings per container</span><strong>{{ content.nutrition.servings_per_container }}</strong></div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <table class="nutrition">
+      <thead>
+        <tr>
+          <th>Average values</th>
+          <th class="num">{{ content.nutrition.per_serving_label }}</th>
+          <th class="num">{{ content.nutrition.per_reference_label }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in content.nutrition.rows %}
+        <tr class="{% if row.indent %}indent{% endif %} {% if row.bold %}bold{% endif %}">
+          <td>{{ row.label }}</td>
+          <td class="num">{{ row.per_serving | nutrient(row.unit) }}</td>
+          <td class="num">{{ row.per_reference | nutrient(row.unit) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if content.nutrition.footnote %}
+    <p class="footnote">{{ content.nutrition.footnote }}</p>
+    {% endif %}
+  </section>
+
+{% elif active == "ingredients" %}
+  <section>
+    <h2>Ingredients</h2>
+    <p class="statement">{{ content.ingredients.statement }}</p>
+    {% if content.ingredients.note %}
+    <p class="footnote">{{ content.ingredients.note }}</p>
+    {% endif %}
+  </section>
+
+{% elif active == "allergens" %}
+  <section>
+    <h2>Allergens</h2>
+    {% if content.allergens.contains %}
+    <div class="allergen-group contains">
+      <h3>Contains</h3>
+      <ul>{% for a in content.allergens.contains %}<li>{{ a }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    {% if content.allergens.may_contain %}
+    <div class="allergen-group may">
+      <h3>May contain</h3>
+      <ul>{% for a in content.allergens.may_contain %}<li>{{ a }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    {% if content.allergens.free_from %}
+    <div class="allergen-group free">
+      <h3>Free from</h3>
+      <ul>{% for a in content.allergens.free_from %}<li>{{ a }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+  </section>
+
+{% else %}
+  <section>
+    {% if content.home.marketing %}
+    <p class="statement">{{ content.home.marketing }}</p>
+    {% endif %}
+    {% if content.home.prep %}
+    <h2>Preparation</h2><p>{{ content.home.prep }}</p>
+    {% endif %}
+    {% if content.home.storage %}
+    <h2>Storage</h2><p>{{ content.home.storage }}</p>
+    {% endif %}
+    {% if content.home.origin %}
+    <h2>Origin</h2><p>{{ content.home.origin }}</p>
+    {% endif %}
+    {% if content.home.links %}
+    <h2>More</h2>
+    <ul class="links">
+      {% for link in content.home.links %}
+      <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+{% endif %}
+</main>
+
+<nav class="tabbar">
+  {% for tab in tabs %}
+  <a href="?tab={{ tab }}" class="{% if tab == active %}on{% endif %}">{{ tab|capitalize }}</a>
+  {% endfor %}
+</nav>
+
+</body>
+</html>
